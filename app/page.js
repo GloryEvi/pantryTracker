@@ -42,6 +42,8 @@ export default function Home() {
   const handleClose = () => setOpen(false);
 
   const [itemName, setItemName] = useState("");
+  const [inputValues, setInputValues] = useState({});
+  const [updatingItem, setUpdatingItem] = useState(null);
 
   const updatePantry = async () => {
     const snapshot = query(collection(firestore, "pantry"));
@@ -50,7 +52,6 @@ export default function Home() {
     docs.forEach((doc) => {
       pantryList.push({ name: doc.id, ...doc.data() });
     });
-    console.log(pantryList);
     setPantry(pantryList);
   };
 
@@ -87,6 +88,27 @@ export default function Home() {
     }
     await updatePantry();
   };
+
+  const handleInputChange = (e) => {
+    setInputValues({
+      ...inputValues,
+      [updatingItem]: e.target.value,
+    });
+  };
+  const updateItem = async (itemName) => {
+    const newCount = parseInt(inputValues[itemName], 10);
+    if (!isNaN(newCount) && newCount >= 0) {
+      const docRef = doc(collection(firestore, "pantry"), itemName);
+      if (newCount === 0) {
+        await deleteDoc(docRef);
+      } else {
+        await setDoc(docRef, { count: newCount });
+      }
+      await updatePantry();
+      setUpdatingItem(null);
+    }
+  };
+
   return (
     <Box
       width="100vw"
@@ -163,16 +185,40 @@ export default function Home() {
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
               <Typography variant="h4" color={"#333"} textAlign={"center"}>
-                Quantity: {count}
+                Quantity:{count}
               </Typography>
-              <Stack direction={"row"} spacing={2}>
-                <Button variant="contained" onClick={() => addItem(name)}>
-                  add
-                </Button>
-                <Button variant="contained" onClick={() => removeItem(name)}>
-                  remove
-                </Button>
-              </Stack>
+              {updatingItem === name ? (
+                <>
+                  <TextField
+                    type="number"
+                    value={inputValues[name] || ""}
+                    onChange={handleInputChange}
+                    placeholder="Update quantity"
+                    inputProps={{ min: 0 }} // Set minimum value to 0
+                  />
+                  <Button variant="contained" onClick={() => updateItem(name)}>
+                    Update
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Stack direction={"row"} spacing={2}>
+                    <Button variant="outlined" onClick={() => addItem(name)}>
+                      ➕
+                    </Button>
+                    <Button variant="outlined" onClick={() => removeItem(name)}>
+                      ➖
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      onClick={() => setUpdatingItem(name)}
+                    >
+                      Update
+                    </Button>
+                  </Stack>
+                </>
+              )}
             </Box>
           ))}
         </Stack>
