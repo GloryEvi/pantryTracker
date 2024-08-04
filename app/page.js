@@ -24,7 +24,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "90%",
+  width: { xs: "65%", sm: "40%", md: "40%" },
   bgcolor: "white",
   border: "2px solid #000",
   boxShadow: "24",
@@ -44,6 +44,7 @@ export default function Home() {
   const [itemName, setItemName] = useState("");
   const [inputValues, setInputValues] = useState({});
   const [updatingItem, setUpdatingItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const updatePantry = async () => {
     const snapshot = query(collection(firestore, "pantry"));
@@ -73,6 +74,7 @@ export default function Home() {
     }
     await updatePantry();
   };
+
   const removeItem = async (item) => {
     const docRef = doc(collection(firestore, "pantry"), item);
     const docSnap = await getDoc(docRef);
@@ -108,6 +110,10 @@ export default function Home() {
       setUpdatingItem(null);
     }
   };
+
+  const filteredPantry = pantry.filter(({ name }) =>
+    name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Box
@@ -154,8 +160,32 @@ export default function Home() {
         </Box>
       </Modal>
 
-      <Button variant="contained" onClick={handleOpen}>
-        Add
+      <Stack
+        width="70%"
+        direction={"row"}
+        alignItems={"center"}
+        sx={{ paddingRight: 3, paddingLeft: 3 }}
+      >
+        <Box display="flex" width="100%">
+          <TextField
+            label="Search Items"
+            variant="outlined"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search items..."
+            fullWidth
+          />
+          <Button
+            onClick={() => setSearchTerm("")} // Clear search term
+            variant="outlined"
+          >
+            cancel
+          </Button>
+        </Box>
+      </Stack>
+
+      <Button variant="contained" onClick={handleOpen} width="100%">
+        Add New Item to your pantry
       </Button>
       <Box border={"1px solid #333"} width="100%" maxWidth={"800px"}>
         <Box
@@ -166,12 +196,12 @@ export default function Home() {
           justifyContent={"center"}
           alignItems={"center"}
         >
-          <Typography variant="h2" color={"#333"} textAlign={"center"}>
+          <Typography variant="h3" color={"#333"} textAlign={"center"}>
             Pantry Items
           </Typography>
         </Box>
         <Stack width="100%" height="300px" spacing={2} overflow={"auto"}>
-          {pantry.map(({ name, count }) => (
+          {filteredPantry.map(({ name, count }) => (
             <Box
               key={name}
               width="100%"
@@ -206,10 +236,10 @@ export default function Home() {
                 <>
                   <Stack direction={"row"} spacing={2}>
                     <Button variant="outlined" onClick={() => addItem(name)}>
-                      ➕
+                      add
                     </Button>
                     <Button variant="outlined" onClick={() => removeItem(name)}>
-                      ➖
+                      remove
                     </Button>
 
                     <Button
