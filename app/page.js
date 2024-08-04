@@ -24,7 +24,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "400",
+  width: "90%",
   bgcolor: "white",
   border: "2px solid #000",
   boxShadow: "24",
@@ -118,6 +118,7 @@ export default function Home() {
       flexDirection={"column"}
       alignItems={"center"}
       gap={2}
+      padding={2}
     >
       <Modal
         open={open}
@@ -156,9 +157,9 @@ export default function Home() {
       <Button variant="contained" onClick={handleOpen}>
         Add
       </Button>
-      <Box border={"1px solid #333"}>
+      <Box border={"1px solid #333"} width="100%" maxWidth={"800px"}>
         <Box
-          width={"800px"}
+          width={"100%"}
           height={"100px"}
           bgcolor={"#ADD8E6"}
           display={"flex"}
@@ -169,22 +170,23 @@ export default function Home() {
             Pantry Items
           </Typography>
         </Box>
-        <Stack width="800px" height="300px" spacing={2} overflow={"auto"}>
+        <Stack width="100%" height="300px" spacing={2} overflow={"auto"}>
           {pantry.map(({ name, count }) => (
             <Box
               key={name}
               width="100%"
-              minHeight="150px"
+              minHeight="100px"
               display={"flex"}
+              flexDirection={{ xs: "column", sm: "row", md: "row" }}
               justifyContent={"space-between"}
-              paddingX={5}
+              paddingX={2}
               alignItems={"center"}
               bgcolor={"#f0f0f0"}
             >
-              <Typography variant="h4" color={"#333"} textAlign={"center"}>
+              <Typography variant="h5" color={"#333"} textAlign={"center"}>
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
-              <Typography variant="h4" color={"#333"} textAlign={"center"}>
+              <Typography variant="h5" color={"#333"} textAlign={"center"}>
                 Quantity:{count}
               </Typography>
               {updatingItem === name ? (
